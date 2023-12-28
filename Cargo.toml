@@ -13,7 +13,7 @@ rusoto_dynamodb = "0.48.0"
 maplit = "1.0"
 
 rand = "0.8.4"
-magic-crypt = “3.1.9”
+magic-crypt = "3.1.9"
 
 axum = "0.7.2"
 

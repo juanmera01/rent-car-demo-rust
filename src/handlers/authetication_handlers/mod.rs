@@ -1,4 +1,4 @@
-use axum::extract::{Path};
+use axum::extract::Path;
 use axum::response::{Html, IntoResponse};
 
 pub async fn index_handler() -> impl IntoResponse {

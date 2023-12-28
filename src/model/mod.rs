@@ -25,7 +25,7 @@ impl User {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UserToCreate {
     pub username: String,
     pub email: String,

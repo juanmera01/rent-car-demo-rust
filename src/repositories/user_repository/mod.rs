@@ -6,7 +6,7 @@ use maplit::hashmap;
 const TABLE_NAME:&str = "rentcar_users_table";
 
 pub async fn save_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::PutItemError>> {
-    let client = DynamoDbClient::new(Region::EuWest3);
+    let client = DynamoDbClient::new(Region::EuCentral1);
 
     let serialized = serde_json::to_string(&user)?;
     let input = PutItemInput {
@@ -15,11 +15,12 @@ pub async fn save_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto
         ..Default::default()
     };
 
+    
     client.put_item(input).await.map(|_| ())
 }
 
 pub async fn list_users() -> Result<Vec<User>, rusoto_core::RusotoError<rusoto_dynamodb::ScanError>> {
-    let client = DynamoDbClient::new(Region::EuWest3);
+    let client = DynamoDbClient::new(Region::EuCentral1);
 
     let scan_input = ScanInput {
         table_name: TABLE_NAME.to_string(),
@@ -41,7 +42,7 @@ pub async fn list_users() -> Result<Vec<User>, rusoto_core::RusotoError<rusoto_d
 }
 
 pub async fn delete_user(id: u64) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::DeleteItemError>> {
-    let client = DynamoDbClient::new(Region::EuWest3);
+    let client = DynamoDbClient::new(Region::EuCentral1);
     
     let delete_input = DeleteItemInput {
         key: hashmap! {
@@ -58,7 +59,7 @@ pub async fn delete_user(id: u64) -> Result<(), rusoto_core::RusotoError<rusoto_
 }
 
 pub async fn update_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::PutItemError>> {
-    let client = DynamoDbClient::new(Region::EuWest3);
+    let client = DynamoDbClient::new(Region::EuCentral1);
 
     let serialized = serde_json::to_string(&user)?;
     let input = PutItemInput {
@@ -71,7 +72,7 @@ pub async fn update_user(user: User) -> Result<(), rusoto_core::RusotoError<ruso
 }
 
 pub async fn get_user(id: u64) -> Result<User, rusoto_core::RusotoError<rusoto_dynamodb::QueryError>> {
-    let client = DynamoDbClient::new(Region::EuWest3);
+    let client = DynamoDbClient::new(Region::EuCentral1);
 
     let query_input = QueryInput {
         table_name: TABLE_NAME.to_string(),

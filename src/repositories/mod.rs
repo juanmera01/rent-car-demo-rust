@@ -1,5 +1,5 @@
 
 
-mod user_repository;
-mod vehicle_repository;
+pub mod user_repository;
+pub mod vehicle_repository;
 

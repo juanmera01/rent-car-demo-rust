@@ -9,13 +9,14 @@ use crate::repositories::user_repository::save_user;
 
 pub async fn create_user_handler(data: Json<UserToCreate>) -> impl IntoResponse {
 
+    print!("{:?}",data.0);
     let user_to_create = data.0;
 
     if user_to_create.password != user_to_create.pass_confirm {
         return Html("passwords do not match");
     }
-    let encrypted_password = encrypt( user_to_create.password, user_to_create.username);
-    let user_to_save = User::new(user_to_create.username, user_to_create.email, encrypted_password);
+    let encrypted_password = encrypt( user_to_create.password, &user_to_create.username);
+    let user_to_save = User::new(user_to_create.username.clone(), user_to_create.email, encrypted_password);
 
     match save_user(user_to_save).await {
         Ok(contents) => {

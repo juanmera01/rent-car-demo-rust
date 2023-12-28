@@ -6,9 +6,9 @@ use crate::handlers::authetication_handlers::{login_handler, signup_handler, ind
 
 pub fn main_router() -> Router {
     Router::new()
-        .nest("/login",login_routes())
-        .nest("/vehicle",vehicle_routes())
-        .nest("/user",user_routes())
+        .nest("/",login_routes())
+        .nest("/",vehicle_routes())
+        .nest("/",user_routes())
         .nest("/",default_routes())
 }
 
