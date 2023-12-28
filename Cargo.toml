@@ -7,6 +7,13 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
+rusoto_core = "0.48.0"
+rusoto_dynamodb = "0.48.0"
+
+maplit = "1.0"
+
+rand = "0.8.4"
+magic-crypt = “3.1.9”
 
 axum = "0.7.2"
 

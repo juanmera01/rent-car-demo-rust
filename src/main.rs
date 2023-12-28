@@ -5,6 +5,8 @@ use crate::routes::main_router;
 mod routes;
 mod handlers;
 mod model;
+mod repositories;
+mod utils;
 
 #[tokio::main]
 async fn main() {
