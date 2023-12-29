@@ -1,5 +1,4 @@
 
-use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use rand::Rng;
@@ -20,6 +19,16 @@ impl User {
         let number_id:u64 = rand::thread_rng().gen();
         let active = true;
         let id = number_id.to_string();
+        User {
+            id,
+            username,
+            email,
+            active,
+            password
+        }
+    }
+
+    pub fn new_complete(id:String, username:String, email: String, password: String, active:bool) -> User {
         User {
             id,
             username,
