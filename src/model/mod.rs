@@ -30,11 +30,10 @@ impl User {
     }
 
     pub fn to_hashmap(&self) -> HashMap<String, AttributeValue> {
-        let hashmap: HashMap<String, AttributeValue> = HashMap::new();
-
         let mut hashmap: HashMap<String, AttributeValue> = HashMap::new();
+
         let mut username = AttributeValue::default();
-        username.s = Some(self.get_id().to_string());
+        username.s = Some(self.get_username().to_string());
         let mut id = AttributeValue::default();
         id.s = Some(self.get_id().to_string());
         let mut email = AttributeValue::default();
