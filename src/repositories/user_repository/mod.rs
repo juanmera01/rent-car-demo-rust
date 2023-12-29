@@ -1,7 +1,6 @@
 use rusoto_core::Region;
 use rusoto_dynamodb::{DynamoDb, DynamoDbClient, DeleteItemInput, ScanInput, PutItemInput, QueryInput, AttributeValue};
 use crate::model::User;
-use maplit::hashmap;
 use std::collections::HashMap;
 
 const TABLE_NAME:&str = "rentcar_users_table";
@@ -40,16 +39,16 @@ pub async fn list_users() -> Result<Vec<User>, rusoto_core::RusotoError<rusoto_d
     Ok(users)
 }
 
-pub async fn delete_user(id: u64) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::DeleteItemError>> {
+pub async fn delete_user(id: &String) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::DeleteItemError>> {
     let client = DynamoDbClient::new(Region::EuCentral1);
     
-    let delete_input = DeleteItemInput {
-        key: hashmap! {
-            "id".to_string() => rusoto_dynamodb::AttributeValue {
-                s: Some(id.to_string()),
-                ..Default::default()
-            },
-        },
+    let mut id_av: AttributeValue = AttributeValue::default();
+    id_av.s = Some(id.to_string());
+    let mut hashmap: HashMap<String, AttributeValue> = HashMap::new();
+    hashmap.insert("id".to_string(), id_av);
+
+    let delete_input: DeleteItemInput = DeleteItemInput {
+        key: hashmap,
         table_name: TABLE_NAME.to_string(),
         ..Default::default()
     };
