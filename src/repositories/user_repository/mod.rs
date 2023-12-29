@@ -26,17 +26,17 @@ pub async fn list_users() -> Result<Vec<User>, rusoto_core::RusotoError<rusoto_d
     };
     let mut users: Vec<User> = Vec::new();
     
-    let result = client.scan(scan_input.clone()).await?;
-    if let Some(scanned_items) = result.items {
-        let mut s: Vec<User> = Vec::new();
-        for item in scanned_items {
-            let user: User = serde_json::from_str(&item.into_iter().next().unwrap().0)?;
-            s.push(user);
+    match client.scan(scan_input).await?.items {
+        Some(items) => {
+            for item in items.iter().enumerate() {
+                users.push(parse_hashmap_to_user(item.1));
+            }
+            Ok(users)
         }
-        users.extend_from_slice(&s);
+        None => {
+            Ok(users)
+        }
     }
-    
-    Ok(users)
 }
 
 pub async fn delete_user(id: &String) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::DeleteItemError>> {
@@ -92,15 +92,20 @@ pub async fn get_user(id: &String) -> Result<Option<User>, rusoto_core::RusotoEr
                 return Ok(None);
             }
             let item = op_item.unwrap();
-            let id:String = item.get("id").unwrap().s.clone().unwrap(); 
-            let username:String = item.get("username").unwrap().s.clone().unwrap();
-            let email:String = item.get("email").unwrap().s.clone().unwrap();
-            let password:String = item.get("password").unwrap().s.clone().unwrap();
-            let active:bool = item.get("active").unwrap().bool.unwrap();
 
-            let user = User::new_complete(id, username, email, password, active);
+            let user = parse_hashmap_to_user(item);
             Ok(Some(user))
         },
         None => Ok(None)
     }
+}
+
+fn parse_hashmap_to_user(item: &HashMap<String, AttributeValue>) -> User {
+    let id:String = item.get("id").unwrap().s.clone().unwrap(); 
+    let username:String = item.get("username").unwrap().s.clone().unwrap();
+    let email:String = item.get("email").unwrap().s.clone().unwrap();
+    let password:String = item.get("password").unwrap().s.clone().unwrap();
+    let active:bool = item.get("active").unwrap().bool.unwrap();
+
+    User::new_complete(id, username, email, password, active)
 }

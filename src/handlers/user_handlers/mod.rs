@@ -5,7 +5,7 @@ use axum::response::{Html, IntoResponse};
 use axum::Json;
 use crate::model::{UserToCreate, User};
 use crate::utils::encrypt;
-use crate::repositories::user_repository::{save_user, get_user, delete_user};
+use crate::repositories::user_repository::{save_user, get_user, delete_user, list_users};
 
 pub async fn create_user_handler(data: Json<UserToCreate>) -> impl IntoResponse {
 
@@ -57,7 +57,14 @@ pub async fn delete_user_handler(Path(id): Path<String>) -> impl IntoResponse {
 }
 
 pub async fn list_users_handler() -> impl IntoResponse {
-    Html("sample get users response")
+    match list_users().await {
+        Ok(users) => {
+            return Html(format!("users: {:?}", users));
+        }
+        Err(err) => {
+            return Html(format!("Something went wrong listing the users: {:?}", err));
+        }
+    }
 }
 
 
