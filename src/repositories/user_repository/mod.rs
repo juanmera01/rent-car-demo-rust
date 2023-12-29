@@ -1,21 +1,20 @@
 use rusoto_core::Region;
-use rusoto_dynamodb::{DynamoDb, DynamoDbClient, DeleteItemInput, ScanInput, PutItemInput, QueryInput};
+use rusoto_dynamodb::{DynamoDb, DynamoDbClient, DeleteItemInput, ScanInput, PutItemInput, QueryInput, AttributeValue};
 use crate::model::User;
 use maplit::hashmap;
+use std::collections::HashMap;
 
 const TABLE_NAME:&str = "rentcar_users_table";
 
 pub async fn save_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::PutItemError>> {
     let client = DynamoDbClient::new(Region::EuCentral1);
 
-    let serialized = serde_json::to_string(&user)?;
     let input = PutItemInput {
         table_name: TABLE_NAME.to_string(),
-        item: serde_json::from_str(&serialized)?,
+        item: user.to_hashmap(),
         ..Default::default()
     };
 
-    
     client.put_item(input).await.map(|_| ())
 }
 

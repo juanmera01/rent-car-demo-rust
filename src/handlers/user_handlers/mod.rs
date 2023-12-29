@@ -9,7 +9,6 @@ use crate::repositories::user_repository::save_user;
 
 pub async fn create_user_handler(data: Json<UserToCreate>) -> impl IntoResponse {
 
-    print!("{:?}",data.0);
     let user_to_create = data.0;
 
     if user_to_create.password != user_to_create.pass_confirm {
@@ -23,6 +22,7 @@ pub async fn create_user_handler(data: Json<UserToCreate>) -> impl IntoResponse 
             Html("The user was created successfuly!")
         }
         Err(err) => {
+            println!("{:?}", err);
             Html("There was an error saving the new user")
         }
     }
