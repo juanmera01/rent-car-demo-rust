@@ -1,6 +1,6 @@
 use rusoto_core::Region;
-use rusoto_dynamodb::{DynamoDb, DynamoDbClient, DeleteItemInput, ScanInput, PutItemInput, QueryInput, AttributeValue};
-use crate::model::User;
+use rusoto_dynamodb::{DynamoDb, DynamoDbClient, DeleteItemInput, ScanInput, PutItemInput, QueryInput, AttributeValue, UpdateItemInput};
+use crate::model::user::User;
 use std::collections::HashMap;
 
 const TABLE_NAME:&str = "rentcar_users_table";
@@ -56,17 +56,57 @@ pub async fn delete_user(id: &String) -> Result<(), rusoto_core::RusotoError<rus
     client.delete_item(delete_input).await.map(|_| ())
 }
 
-pub async fn update_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::PutItemError>> {
+pub async fn update_user(user: User) -> Result<(), rusoto_core::RusotoError<rusoto_dynamodb::UpdateItemError>> {
     let client = DynamoDbClient::new(Region::EuCentral1);
 
-    let serialized = serde_json::to_string(&user)?;
-    let input = PutItemInput {
+    let input = UpdateItemInput {
         table_name: TABLE_NAME.to_string(),
-        item: serde_json::from_str(&serialized)?,
+        key: parse_string_to_hashmap(&"id".to_string(), &user.get_id().to_string()),
+        update_expression: Some("SET #username = :username, #email = :email, #active = :active, #password = :password".to_string()),
+        expression_attribute_names: Some({
+            let mut attribute_names = std::collections::HashMap::new();
+            attribute_names.insert("#username".to_string(), "username".to_string());
+            attribute_names.insert("#email".to_string(), "email".to_string());
+            attribute_names.insert("#active".to_string(), "active".to_string());
+            attribute_names.insert("#password".to_string(), "password".to_string());
+            attribute_names
+        }),
+        expression_attribute_values: Some({
+            let mut attribute_values = std::collections::HashMap::new();
+            attribute_values.insert(
+                ":username".to_string(),
+                AttributeValue {
+                    s: Some(user.get_username().to_string()),
+                    ..Default::default()
+                },
+            );
+            attribute_values.insert(
+                ":email".to_string(),
+                AttributeValue {
+                    s: Some(user.get_email().to_string()),
+                    ..Default::default()
+                },
+            );
+            attribute_values.insert(
+                ":active".to_string(),
+                AttributeValue {
+                    s: Some(user.get_active().to_string()),
+                    ..Default::default()
+                },
+            );
+            attribute_values.insert(
+                ":password".to_string(),
+                AttributeValue {
+                    s: Some(user.get_password().to_string()),
+                    ..Default::default()
+                },
+            );
+            attribute_values
+        }),
         ..Default::default()
     };
 
-    client.put_item(input).await.map(|_| ())
+    client.update_item(input).await.map(|_| ())
 }
 
 pub async fn get_user(id: &String) -> Result<Option<User>, rusoto_core::RusotoError<rusoto_dynamodb::QueryError>> {
@@ -83,7 +123,6 @@ pub async fn get_user(id: &String) -> Result<Option<User>, rusoto_core::RusotoEr
         expression_attribute_values: Some(hashmap),
         ..Default::default()
     };
-    //let result = ;//.items.unwrap().into_iter().next().unwrap();
     match client.query(query_input).await?.items {
         Some(items) => {
 
@@ -105,7 +144,16 @@ fn parse_hashmap_to_user(item: &HashMap<String, AttributeValue>) -> User {
     let username:String = item.get("username").unwrap().s.clone().unwrap();
     let email:String = item.get("email").unwrap().s.clone().unwrap();
     let password:String = item.get("password").unwrap().s.clone().unwrap();
-    let active:bool = item.get("active").unwrap().bool.unwrap();
+    let active:bool = item.get("active").unwrap_or(&AttributeValue::default()).bool.unwrap_or(true);
 
     User::new_complete(id, username, email, password, active)
+}
+
+fn parse_string_to_hashmap(key:&String, string: &String) -> HashMap<String, AttributeValue> {
+    let mut hashmap: HashMap<String, AttributeValue> = HashMap::new();
+    hashmap.insert(key.to_string(), AttributeValue {
+        s: Some(string.to_string()),
+        ..Default::default()
+    });
+    hashmap
 }
