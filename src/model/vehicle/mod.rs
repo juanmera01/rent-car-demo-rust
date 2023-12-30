@@ -12,6 +12,17 @@ pub enum VehicleClass {
     Truck
 }
 
+impl ToString for VehicleClass {
+    fn to_string(&self) -> String {
+        match *self {
+            VehicleClass::Car => String::from("car"),
+            VehicleClass::Van => String::from("van"),
+            VehicleClass::Motorcycle => String::from("motorcycle"),
+            VehicleClass::Truck => String::from("truck"),
+        }
+    }
+}
+
 trait Vehicle {
     fn calculate_rent(&self, days: u32, user: &User) -> u32;
 }
@@ -79,5 +90,40 @@ impl Car {
     }
     pub fn get_user_id(&self) -> &Option<String> {
         &self.user_id
+    }
+
+    pub fn to_hashmap(&self) -> HashMap<String, AttributeValue> {
+        let mut hashmap: HashMap<String, AttributeValue> = HashMap::new();
+
+        let mut id = AttributeValue::default();
+        id.s = Some(self.get_id().to_string());
+        hashmap.insert(String::from("id"), id);
+
+        let mut brand = AttributeValue::default();
+        brand.s = Some(self.get_brand().to_string());
+        hashmap.insert(String::from("brand"), brand);
+
+        let mut model = AttributeValue::default();
+        model.s = Some(self.get_model().to_string());
+        hashmap.insert(String::from("model"), model);
+
+        let mut class = AttributeValue::default();
+        class.s = Some(self.get_class().to_string());
+        hashmap.insert(String::from("class"), class);
+        
+        let mut price_per_hour = AttributeValue::default();
+        price_per_hour.n = Some(self.get_price_per_hour().to_string());
+        hashmap.insert(String::from("price_per_hour"), price_per_hour);
+        
+        let mut rented = AttributeValue::default();
+        rented.bool = Some(self.get_rented().to_owned());
+        hashmap.insert(String::from("rented"), rented);
+        
+        let mut user_id = AttributeValue::default();
+        user_id.s = self.get_user_id().to_owned();
+        hashmap.insert(String::from("user_id"), user_id);
+
+        hashmap
+
     }
 }
