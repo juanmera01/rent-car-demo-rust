@@ -23,8 +23,10 @@ impl ToString for VehicleClass {
     }
 }
 
-trait Vehicle {
+pub trait Vehicle {
     fn calculate_rent(&self, days: u32, user: &User) -> u32;
+
+    fn to_hashmap(&self) -> HashMap<String, AttributeValue>;
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -38,17 +40,24 @@ pub struct Car {
     user_id: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CarToCreate {
+    pub brand: String,
+    pub model: String,
+    pub price_per_hour: u32
+}
+
 impl Car {
 
-    pub fn new_complete(id: String, brand: String, model: String, class: VehicleClass, price_per_hour: u32) -> Car {
+    pub fn new_complete(id: String, brand: String, model: String, class: VehicleClass, price_per_hour: u32, rented:bool, user_id:String) -> Car {
         Car {
             id,
             brand,
             model,
             class,
             price_per_hour,
-            rented: false,
-            user_id: None,
+            rented,
+            user_id: Some(user_id),
         }
     }
 
